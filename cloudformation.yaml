@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "DOCKER Instance"
+Resources: 
+  MyEC2Instance: 
+    Type: "AWS::EC2::Instance"
+    Properties: 
+      AvailabilityZone: us-east-2b
+      ImageId: ami-c5062ba0
+      InstanceType: t2.micro
+      KeyName: DockerNew
+      SecurityGroupIds: 
+        - sg-ff33a697
+      SubnetId: subnet-1d11b866
+      Tags: 
+        - Key: Name 
+          Value: Docker
+      #UserData: String 
