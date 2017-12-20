@@ -1,17 +1,69 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: "DOCKER Instance"
-Resources: 
-  MyEC2Instance: 
-    Type: "AWS::EC2::Instance"
-    Properties: 
-      AvailabilityZone: us-east-2b
+Resources:         
+  LaunchConfig:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
       ImageId: ami-c5062ba0
+      SecurityGroups:
+        - sg-ff33a697
       InstanceType: t2.micro
       KeyName: DockerNew
-      SecurityGroupIds: 
-        - sg-ff33a697
-      SubnetId: subnet-1d11b866
-      Tags: 
-        - Key: Name 
-          Value: Docker
-      #UserData: String 
+      UserData:
+        Fn::Base64:
+          Fn::Join:
+            - ""
+            -
+              - "#!/bin/bash -ex"
+              - "\n"
+              - "yum -y install docker"
+              - "\n"
+              - "service docker start"
+              - "\n"
+              - "docker pull ashish826/sampleflaskapp"
+              - "\n"
+              - "docker run -d -p 80:5000 ashish826/sampleflaskapp"
+              - "\n"         
+  MyAutscalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:
+        - us-east-2a
+        - us-east-2b
+        - us-east-2c 
+      LaunchConfigurationName:
+        Ref: LaunchConfig
+      MinSize: '3'
+      MaxSize: '5'
+      VPCZoneIdentifier:
+        - subnet-18412171
+        - subnet-1d11b866
+        - subnet-27906a6a
+      DesiredCapacity: '3'
+  MY_ELB:
+    Type: "AWS::ElasticLoadBalancing::LoadBalancer"
+    Properties:
+      AvailabilityZones:
+        - us-east-2a
+        - us-east-2b
+        - us-east-2c 
+      CrossZone: True
+      HealthCheck:
+        HealthyThreshold: "2"
+        Interval: "10"
+        Target: "HTTP:80/hello"
+        Timeout: "5"
+        UnhealthyThreshold: "5"
+      LoadBalancerName: "CloudFormationELB"
+      Listeners:
+        InstancePort: "80"
+        InstanceProtocol: "HTTP"
+        LoadBalancerPort: "80"
+        Protocol: "HTTP"
+      Scheme: "internet-facing"
+      #SecurityGroups:
+       # - Security Group
+      # Subnets:
+      #   - String
+      # Tags:
+      #   - Resource Tag
