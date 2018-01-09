@@ -40,7 +40,7 @@ Resources:
         - subnet-1d11b866
         - subnet-27906a6a
       DesiredCapacity: '3'
-  MY_ELB:
+  MYELB:
     Type: "AWS::ElasticLoadBalancing::LoadBalancer"
     Properties:
       AvailabilityZones:

@@ -7,5 +7,5 @@ cat app.py
 ls -lrt
 docker build -t ashish826/sampleflaskapp .
 docker push ashish826/sampleflaskapp
-
+aws cloudformation create-stack --stack-name ashish --template-body file://cloudformation.yaml
 
